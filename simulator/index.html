@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrueCall — Passport Prime Dual Simulator</title>
+  <style>
+    :root {
+      --bg: #07080b;
+      --card-bg: #12141c;
+      --card-border: #222634;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.25);
+      --copper-rim: linear-gradient(135deg, #d88f68 0%, #f7bfa0 25%, #8c4a22 55%, #df9970 80%, #683011 100%);
+      --copper-accent: #d88f68;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --warning: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "SF Pro Display", sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    header {
+      background: #0d0f15;
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .brand-tagline {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .main-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .prime-wrapper {
+        order: -1;
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    /* Left: Corporate Treasury Portal */
+    .portal-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .call-alert-banner {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.22), rgba(239, 68, 68, 0.05));
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 12px;
+      padding: 0.85rem 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .call-alert-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fca5a5;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .data-label { color: var(--text-muted); }
+    .data-val { font-weight: 600; font-family: monospace; }
+    .data-val.red { color: var(--danger); }
+    .data-val.green { color: var(--success); }
+
+    .btn {
+      padding: 0.65rem 1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-success { background: var(--success); color: #000; }
+    .btn-outline { background: transparent; border: 1px solid var(--card-border); color: #cbd5e1; }
+    .btn-outline:hover { background: rgba(255,255,255,0.04); }
+
+    /* Attack Buttons */
+    .attack-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.6rem;
+    }
+    .attack-btn {
+      background: #151822;
+      border: 1px solid #282d3e;
+      border-radius: 8px;
+      padding: 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #fca5a5;
+      cursor: pointer;
+      text-align: left;
+      line-height: 1.35;
+    }
+    .attack-btn:hover { border-color: var(--danger); background: rgba(239, 68, 68, 0.12); }
+
+    /* ============================================================ */
+    /* REALISTIC PASSPORT PRIME HARDWARE FRAME */
+    /* ============================================================ */
+    .prime-wrapper {
+      display: flex;
+      justify-content: center;
+      position: sticky;
+      top: 5rem;
+    }
+
+    .prime-chassis {
+      width: 100%;
+      max-width: 370px;
+      height: 680px;
+      background: #0f1014;
+      border-radius: 46px;
+      padding: 10px;
+      position: relative;
+      box-shadow: 
+        0 0 0 2px #7a3a14,
+        0 0 0 4px #e59a68,
+        0 0 0 6px #5e2808,
+        0 20px 50px rgba(0, 0, 0, 0.95),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    .prime-screen {
+      flex: 1;
+      background: #000000;
+      border-radius: 36px;
+      border: 1px solid #1a1b20;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .prime-status-bar {
+      height: 34px;
+      padding: 0.5rem 1.2rem 0 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.76rem;
+      color: #94a3b8;
+    }
+    .prime-clock-time {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 0.82rem;
+    }
+    .prime-status-glyphs {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--copper-accent);
+      font-size: 0.72rem;
+    }
+
+    .prime-ticker {
+      margin: 0.4rem 1rem 0.2rem 1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 0.55rem 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ticker-price { font-size: 1rem; font-weight: 800; color: #fff; }
+    .ticker-sub { font-size: 0.65rem; color: var(--text-muted); }
+    .ticker-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.18rem 0.45rem;
+      border-radius: 99px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .prime-content {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      overflow-y: auto;
+    }
+
+    .prime-vendor-alert {
+      background: rgba(239, 68, 68, 0.14);
+      border: 2px solid var(--danger);
+      border-radius: 12px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+    }
+    .vendor-alert-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .prime-pay-card {
+      background: #111319;
+      border: 1px solid #232734;
+      border-radius: 14px;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.25rem;
+    }
+    .pay-card-label { font-size: 0.68rem; color: var(--copper-accent); font-weight: 700; text-transform: uppercase; }
+    .pay-card-amount { font-size: 1.6rem; font-weight: 900; color: #fff; }
+    .pay-card-beneficiary { font-size: 0.85rem; font-weight: 600; color: #cbd5e1; }
+
+    .prime-bottom-bar {
+      height: 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      padding-bottom: 4px;
+    }
+    .prime-home-pill {
+      width: 65px;
+      height: 4px;
+      background: #ffffff;
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+    }
+    .prime-brand-sub {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: #64748b;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="brand-title">🛡️ TRUECALL <span style="font-size: 0.7rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: var(--primary); padding: 0.2rem 0.5rem; border-radius: 4px;">PASSPORT PRIME • KEYOS</span></div>
+      <div class="brand-tagline">"A deepfake can copy your face. It can't copy your key." • Dual Simulator</div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+      <button class="btn btn-outline" onclick="window.open('../presentation/index.html', '_blank')">📽️ Pitch Deck</button>
+      <button class="btn btn-outline" onclick="runHonestFlow()">⚡ Auto Demo (Honest)</button>
+    </div>
+  </header>
+
+  <div class="main-container">
+
+    <!-- LEFT: Treasury / Finance Verifier Tool -->
+    <div class="portal-section">
+
+      <!-- Scenario Context Banner -->
+      <div class="call-alert-banner">
+        <div>
+          <div class="call-alert-title">🎥 Live Video Call: "Alice Wright (CFO)" on Screen</div>
+          <div style="font-size: 0.82rem; color: #cbd5e1; margin-top: 0.2rem;">
+            Caller claims: <em>"We must release $250,000 for Crown Steel immediately or the HK site halts!"</em>
+          </div>
+        </div>
+        <span style="font-size: 0.72rem; font-weight: 700; background: var(--danger); color: #fff; padding: 0.25rem 0.6rem; border-radius: 999px;">AI Deepfake Active</span>
+      </div>
+
+      <!-- Payment Setup & Attacks -->
+      <div class="grid-cards">
+        <div class="card">
+          <h3>💳 Payment Request Builder</h3>
+          <div class="data-row"><span class="data-label">Company</span><span class="data-val">Arup Global Treasury</span></div>
+          <div class="data-row"><span class="data-label">Beneficiary</span><span class="data-val" id="disp-beneficiary">Crown Steel Fabrications</span></div>
+          <div class="data-row"><span class="data-label">Claimed Account</span><span class="data-val red" id="disp-account">HK99HSBC99998888777700</span></div>
+          <div class="data-row"><span class="data-label">Amount</span><span class="data-val" id="disp-amount">USD 250,000.00</span></div>
+          <div class="data-row"><span class="data-label">Policy Rule</span><span class="data-val">Requires Enrolled CFO Key</span></div>
+          <button class="btn btn-primary" onclick="generateRequestQr()">Generate Request QR for Prime</button>
+        </div>
+
+        <div class="card">
+          <h3>✅ Finance Verifier Status</h3>
+          <div id="verifier-status-box" style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 0.85rem; border: 1px solid var(--card-border); min-height: 100px; display: flex; flex-direction: column; justify-content: center; gap: 0.4rem;">
+            <div id="verifier-title" style="font-weight: 700; color: var(--warning); font-size: 0.95rem;">Awaiting Passport Prime Signature</div>
+            <div id="verifier-detail" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+              Payment release is blocked at the gateway until a valid BIP340 Schnorr signature from the enrolled CFO key is verified.
+            </div>
+          </div>
+          <button class="btn btn-success" id="release-btn" disabled onclick="releaseFunds()">Release Bank Wire</button>
+        </div>
+      </div>
+
+      <!-- Attack Lab Buttons -->
+      <div class="card">
+        <h3>🛑 Attack Lab: Test The 4 Attacks Replayed & Stopped</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: -0.3rem;">Simulate real adversarial attacks to demonstrate why video deepfakes achieve nothing.</p>
+
+        <div class="attack-strip">
+          <button class="attack-btn" onclick="triggerAttack(1)">
+            <strong>1. Fake CFO on Call</strong><br>
+            Attacker signs with laptop key
+          </button>
+          <button class="attack-btn" onclick="triggerAttack(2)">
+            <strong>2. Swapped Bank Account</strong><br>
+            Invoice fraud flagged on Prime
+          </button>
+          <button class="attack-btn" onclick="triggerAttack(3)">
+            <strong>3. Tamper Amount</strong><br>
+            $25k signed, $250k submitted
+          </button>
+          <button class="attack-btn" onclick="triggerAttack(4)">
+            <strong>4. Replay Approval</strong><br>
+            Re-use yesterday's signature
+          </button>
+        </div>
+      </div>
+
+      <!-- Audit Log View -->
+      <div class="card">
+        <h3>📋 Signed Audit Trail (Chained Hashes)</h3>
+        <div id="audit-log-box" style="display: flex; flex-direction: column; gap: 0.35rem; font-family: monospace; font-size: 0.76rem;">
+          <div style="color: var(--text-muted);">#0 [REQ-ARUP-001] System Ready. Enrolled CFO: Alice Wright (4e1e2e5c...).</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Realistic Passport Prime Hardware Frame -->
+    <div class="prime-wrapper">
+      <div class="prime-chassis">
+        <div class="prime-screen">
+
+          <!-- Top Status Bar -->
+          <div class="prime-status-bar">
+            <span class="prime-clock-time">6:15</span>
+            <div class="prime-status-glyphs">
+              <span>📶</span>
+              <span>⚡</span>
+              <span>🔋 98%</span>
+            </div>
+          </div>
+
+          <!-- Top Ticker / App Header -->
+          <div class="prime-ticker">
+            <div class="ticker-left">
+              <span class="ticker-price">$64,137</span>
+              <span class="ticker-sub">Bitcoin USD</span>
+            </div>
+            <div class="ticker-badge">📈 +2.4%</div>
+          </div>
+
+          <!-- Main Scrollable Screen Content -->
+          <div class="prime-content">
+            <div style="font-size: 0.95rem; font-weight: 800; color: #fff; text-align: center;">
+              Authorization Request
+            </div>
+
+            <!-- Swapped Bank Account Warning -->
+            <div id="prime-vendor-alert" class="prime-vendor-alert">
+              <div class="vendor-alert-title">
+                ⚠️ VENDOR ACCOUNT MISMATCH
+              </div>
+              <div style="font-size: 0.72rem; color: #fca5a5; line-height: 1.35;">
+                Beneficiary: <strong>Crown Steel Fabrications</strong><br>
+                Claimed: <code style="color:#fff;">HK99HSBC99998888777700</code><br>
+                Expected: <code style="color:#94a3b8;">HK29SCBL00098765432100</code><br>
+                <strong style="color: #fff;">Invoice bank details have been swapped!</strong>
+              </div>
+            </div>
+
+            <!-- Payment Details Card -->
+            <div class="prime-pay-card">
+              <span class="pay-card-label">Authorized Amount</span>
+              <span class="pay-card-amount" id="prime-amount">$250,000.00</span>
+              <span class="pay-card-beneficiary" id="prime-beneficiary">Crown Steel Fabrications</span>
+            </div>
+
+            <!-- Hardware Action Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: auto;">
+              <button class="btn btn-danger" style="padding: 0.75rem; font-weight: 700; border-radius: 10px;" onclick="primeReject()">✗ REJECT</button>
+              <button class="btn btn-success" style="padding: 0.75rem; font-weight: 700; border-radius: 10px;" onclick="primeApprove()">✓ APPROVE</button>
+            </div>
+          </div>
+
+          <!-- Bottom Home Bar & Branding -->
+          <div class="prime-bottom-bar">
+            <div class="prime-home-pill" title="Passport Prime Home Indicator" onclick="resetState()"></div>
+            <span class="prime-brand-sub">F O U N D A T I O N</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let logCounter = 1;
+
+    function addLog(action, status, detail, ok) {
+      const box = document.getElementById('audit-log-box');
+      const entry = document.createElement('div');
+      entry.style.background = "rgba(255,255,255,0.03)";
+      entry.style.padding = "0.35rem 0.6rem";
+      entry.style.borderRadius = "6px";
+      entry.style.borderLeft = `3px solid ${ok ? 'var(--success)' : 'var(--danger)'}`;
+      entry.innerHTML = `
+        <div style="display:flex; justify-content:space-between; color:#fff;">
+          <span>#${logCounter++} <strong>${action}</strong></span>
+          <span style="color:${ok ? 'var(--success)' : 'var(--danger)'}">${status}</span>
+        </div>
+        <div style="color:var(--text-muted); font-size:0.72rem; margin-top:2px;">${detail}</div>
+      `;
+      box.prepend(entry);
+    }
+
+    function setVerifierStatus(ok, title, detail) {
+      const box = document.getElementById('verifier-status-box');
+      const t = document.getElementById('verifier-title');
+      const d = document.getElementById('verifier-detail');
+      box.style.border = `1px solid ${ok ? 'var(--success)' : 'var(--danger)'}`;
+      box.style.background = ok ? 'var(--success-bg)' : 'var(--danger-bg)';
+      t.style.color = ok ? 'var(--success)' : 'var(--danger)';
+      t.innerText = title;
+      d.innerText = detail;
+
+      document.getElementById('release-btn').disabled = !ok;
+    }
+
+    function generateRequestQr() {
+      setVerifierStatus(false, "QR Displayed to CFO", "Awaiting Passport Prime scan and BIP340 Schnorr signature response.");
+      addLog("QR_GENERATE", "PENDING", "Payment Request REQ-ARUP-001 ($250,000.00) QR generated for approver screen", true);
+    }
+
+    function primeReject() {
+      setVerifierStatus(false, "REJECTED BY CFO ON PRIME", "Alice Wright inspected the swapped bank account on Prime trusted hardware and pressed REJECT. Transfer blocked.");
+      addLog("PRIME_ACTION", "REJECTED", "CFO explicitly rejected payment due to swapped account details", false);
+    }
+
+    function primeApprove() {
+      setVerifierStatus(true, "APPROVED BY CFO (Key 4e1e2e5c...)", "Valid BIP340 Schnorr signature received. Matches payment request hash. Enrolled CFO authority verified.");
+      addLog("PRIME_ACTION", "APPROVED", "CFO authorized payment with hardware key 4e1e2e5c...", true);
+    }
+
+    function releaseFunds() {
+      alert("✅ Payment Released! Bank API wire confirmed to verified vendor.");
+      addLog("BANK_GATEWAY", "WIRE_RELEASED", "Funds dispatched to vendor after cryptographic signature validation", true);
+    }
+
+    function triggerAttack(n) {
+      switch(n) {
+        case 1:
+          setVerifierStatus(false, "🛑 ATTACK 1 BLOCKED: Unenrolled Key", "The attacker attempted to sign the release on their laptop with key 1dc20dda. REJECTED: Not in the company's signed approver directory.");
+          addLog("ATTACK_1", "BLOCKED", "Signer 1dc20dda is not in the signed directory! Impersonation prevented.", false);
+          break;
+        case 2:
+          primeReject();
+          addLog("ATTACK_2", "BLOCKED", "Swapped bank account detected by Prime vendor check: Expected HK29... got HK99...", false);
+          break;
+        case 3:
+          setVerifierStatus(false, "🛑 ATTACK 3 BLOCKED: Hash Mismatch (MIM)", "CFO signed approval for $25,000. Attacker modified transaction to $250,000. REJECTED: Payment field hash does not match signature.");
+          addLog("ATTACK_3", "BLOCKED", "Digest mismatch: Signature does not bind to modified $250,000 amount.", false);
+          break;
+        case 4:
+          setVerifierStatus(false, "🛑 ATTACK 4 BLOCKED: Replay Attack", "Attacker attempted to replay yesterday's valid approval. REJECTED: Nonce NONCE-9821 already spent / request expired.");
+          addLog("ATTACK_4", "BLOCKED", "Replay attempt: Nonce reused or timestamp expired.", false);
+          break;
+      }
+    }
+
+    function runHonestFlow() {
+      document.getElementById('disp-beneficiary').innerText = "Autodesk Architecture Suite";
+      document.getElementById('disp-account').innerText = "GB82BARC20201555555555";
+      document.getElementById('disp-account').className = "data-val green";
+      document.getElementById('disp-amount').innerText = "USD 25,000.00";
+
+      document.getElementById('prime-amount').innerText = "$25,000.00";
+      document.getElementById('prime-beneficiary').innerText = "Autodesk Architecture Suite";
+
+      const alertBox = document.getElementById('prime-vendor-alert');
+      alertBox.style.border = "2px solid var(--success)";
+      alertBox.style.background = "var(--success-bg)";
+      alertBox.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.2)";
+      alertBox.innerHTML = `
+        <div style="font-size: 0.85rem; font-weight: 800; color: var(--success); display: flex; align-items: center; gap: 0.4rem;">
+          ✓ VERIFIED VENDOR ACCOUNT
+        </div>
+        <div style="font-size: 0.74rem; color: #cbd5e1; line-height: 1.4;">
+          Beneficiary: <strong>Autodesk Architecture Suite</strong><br>
+          Account: <code style="color:#10b981;">GB82BARC20201555555555</code><br>
+          <span style="color: var(--success); font-weight: 600;">Account matches company vendor registry.</span>
+        </div>
+      `;
+
+      setVerifierStatus(true, "✅ PAYMENT AUTHORIZED", "Valid BIP340 Schnorr signature from CFO Alice Wright. Vendor account verified. Ready to release wire.");
+      addLog("HONEST_FLOW", "VERIFIED", "Legitimate $25,000 payment to Autodesk verified on Prime and authorized", true);
+    }
+
+    function resetState() {
+      location.reload();
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const state = params.get('state');
+    if (state === 'attack1') triggerAttack(1);
+    else if (state === 'attack2') triggerAttack(2);
+    else if (state === 'attack3') triggerAttack(3);
+    else if (state === 'attack4') triggerAttack(4);
+    else if (state === 'honest') runHonestFlow();
+    else if (state === 'release') {
+      runHonestFlow();
+      setVerifierStatus(true, "✅ WIRE RELEASED BY BANK", "Funds dispatched to Autodesk via Bank API after cryptographic signature validation.");
+    }
+  </script>
+</body>
+</html>
