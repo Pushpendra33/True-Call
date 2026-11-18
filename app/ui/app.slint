@@ -1,0 +1,124 @@
+// TrueCall UI for Passport Prime (480 x 800)
+export component TrueCallApp inherits Window {
+    width: 480px;
+    height: 800px;
+    title: "TrueCall";
+    background: #0d0e12;
+
+    in property <string> beneficiary_name: "Crown Steel Fabrications";
+    in property <string> amount_display: "$250,000.00";
+    in property <string> account_claimed: "HK99HSBC99998888777700";
+    in property <string> account_expected: "HK29SCBL00098765432100";
+    in property <bool> is_swapped: true;
+
+    callback approve();
+    callback reject();
+
+    VerticalLayout {
+        padding: 24px;
+        spacing: 16px;
+
+        Text {
+            text: "Incoming Payment Request";
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            horizontal-alignment: center;
+        }
+
+        if is_swapped : Rectangle {
+            background: rgba(239, 68, 68, 0.15);
+            border-width: 2px;
+            border-color: #ef4444;
+            border-radius: 12px;
+            height: 120px;
+
+            VerticalLayout {
+                padding: 12px;
+                spacing: 6px;
+                Text {
+                    text: "⚠️ VENDOR ACCOUNT MISMATCH";
+                    color: #ef4444;
+                    font-size: 16px;
+                    font-weight: 800;
+                }
+                Text {
+                    text: "Claimed: " + account_claimed;
+                    color: #fca5a5;
+                    font-size: 13px;
+                }
+                Text {
+                    text: "Expected: " + account_expected;
+                    color: #94a3b8;
+                    font-size: 13px;
+                }
+            }
+        }
+
+        Rectangle {
+            background: #161822;
+            border-radius: 14px;
+            border-width: 1px;
+            border-color: #262938;
+            height: 180px;
+
+            VerticalLayout {
+                padding: 16px;
+                spacing: 8px;
+                alignment: center;
+
+                Text {
+                    text: "AUTHORIZED AMOUNT";
+                    color: #94a3b8;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+                Text {
+                    text: amount_display;
+                    color: #ffffff;
+                    font-size: 32px;
+                    font-weight: 800;
+                }
+                Text {
+                    text: beneficiary_name;
+                    color: #cbd5e1;
+                    font-size: 16px;
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 16px;
+            height: 54px;
+
+            Rectangle {
+                background: #ef4444;
+                border-radius: 10px;
+                TouchArea { clicked => { root.reject(); } }
+                Text {
+                    text: "✗ REJECT";
+                    color: #ffffff;
+                    font-size: 16px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+
+            Rectangle {
+                background: #10b981;
+                border-radius: 10px;
+                TouchArea { clicked => { root.approve(); } }
+                Text {
+                    text: "✓ APPROVE";
+                    color: #000000;
+                    font-size: 16px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}
+

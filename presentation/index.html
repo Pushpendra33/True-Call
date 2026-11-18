@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrueCall — Pitch Deck & Stage Demo</title>
+  <style>
+    :root {
+      --bg: #090a0f;
+      --card-bg: #131620;
+      --card-border: #242838;
+      --primary: #3b82f6; /* TrueCall Blue */
+      --primary-glow: rgba(59, 130, 246, 0.25);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "SF Pro Display", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+    }
+
+    #deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      padding: 3.5rem 5rem 4.5rem 5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: translateX(40px);
+    }
+    .slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+    .slide.previous { transform: translateX(-40px); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(59, 130, 246, 0.12);
+      color: var(--primary);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      width: fit-content;
+      margin-bottom: 0.75rem;
+    }
+    .badge.danger { background: rgba(239, 68, 68, 0.12); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+    .badge.success { background: rgba(16, 185, 129, 0.12); color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
+
+    h1 { font-size: 3.4rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.8rem; }
+    h2 { font-size: 2.5rem; font-weight: 750; margin-bottom: 0.6rem; letter-spacing: -0.01em; }
+    .subtitle { font-size: 1.35rem; color: var(--text-muted); line-height: 1.45; max-width: 900px; }
+
+    .highlight { color: var(--primary); }
+    .highlight-red { color: var(--danger); }
+    .highlight-green { color: var(--success); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .card.primary-card { border-color: var(--primary); box-shadow: 0 0 25px var(--primary-glow); }
+    .card h3 { font-size: 1.15rem; font-weight: 700; }
+    .card p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.4; }
+
+    /* Controls */
+    #nav-bar {
+      position: fixed;
+      bottom: 0; left: 0; width: 100%;
+      padding: 0.8rem 2.5rem;
+      background: rgba(9, 10, 15, 0.94);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+    .nav-btn {
+      background: #1c1f2c;
+      color: #fff;
+      border: 1px solid #2e3346;
+      border-radius: 8px;
+      padding: 0.45rem 1rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .nav-btn:hover { background: #262a3c; border-color: var(--primary); }
+    .timer-pill {
+      font-family: monospace; font-size: 0.95rem; font-weight: 700;
+      background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);
+      color: var(--primary); padding: 0.35rem 0.8rem; border-radius: 9999px; cursor: pointer;
+    }
+    .speaker-note {
+      position: fixed; top: 1rem; right: 1.5rem;
+      background: rgba(19, 22, 32, 0.98); border: 1px solid #3b82f6; border-radius: 10px;
+      padding: 1rem 1.25rem; max-width: 420px; font-size: 0.85rem; line-height: 1.45;
+      color: #cbd5e1; display: none; z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .speaker-note.show { display: block; }
+    .speaker-note h4 { color: #60a5fa; margin-bottom: 0.4rem; font-size: 0.85rem; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- SLIDE 1: Title Hook -->
+  <div class="slide active" data-slide="1" data-notes="HOOK (0:00 - 0:30): Welcome judges. In January 2024, an engineering giant lost $25.6 million because every colleague on a video call was a deepfake. Today, video and voice can be spoofed perfectly. Our project TrueCall solves this with a simple insight: A deepfake can copy your face. It can't copy your key.">
+    <div>
+      <div class="badge">Passport Prime • TechEve Hackathon 2026</div>
+      <h1>TRUE<span class="highlight">CALL</span></h1>
+      <p class="subtitle">Deepfake-Proof Approval for High-Risk Payments and Executive Calls.<br><strong class="highlight">"A deepfake can copy your face. It can't copy your key."</strong></p>
+    </div>
+
+    <div class="grid-3" style="margin-top: 1.5rem;">
+      <div class="card primary-card">
+        <h3>🔐 Verification Outside the Call</h3>
+        <p>Approval happens on enrolled Passport Prime hardware, never inside the video call, chat, or email where the attacker is lurking.</p>
+      </div>
+      <div class="card">
+        <h3>👀 What You See Is What You Sign</h3>
+        <p>Prime’s trusted display shows the exact amount and beneficiary account, comparing it against known vendors to catch swapped IBANs.</p>
+      </div>
+      <div class="card">
+        <h3>🛡️ Untrusted Transport Security</h3>
+        <p>BIP340 Schnorr signatures travel safely across any channel — even the very video call the attacker controls — verified by software.</p>
+      </div>
+    </div>
+
+    <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+      <span>Press <strong>→</strong> or <strong>Space</strong> for next slide • Press <strong>P</strong> for Speaker Notes • Press <strong>T</strong> for 4-min Timer</span>
+      <span>TechEve • Passport Prime / KeyOS</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: The Arup Disaster -->
+  <div class="slide" data-slide="2" data-notes="THE CRISIS (0:30): The Arup case stunned the world. A finance worker joined a video call where the CFO and everyone looked real. They ordered 15 transfers totaling HK$200M ($25.6M). The FBI reported over $893M in AI fraud losses last year alone. Training employees is not enough—the employee did ask for a video call!">
+    <div>
+      <div class="badge danger">The Real-World Crisis</div>
+      <h2>When Faces & Voices Can Be Synthesized</h2>
+      <p class="subtitle">Seeing and hearing someone on a call no longer proves identity.</p>
+    </div>
+
+    <div class="grid-2" style="margin-top: 1rem;">
+      <div class="card" style="border-left: 4px solid var(--danger);">
+        <h3 style="color: var(--danger);">The $25.6 Million Arup Disaster</h3>
+        <p><strong>January 2024:</strong> A finance employee joined a video conference. Every colleague and the CFO on screen were AI-generated deepfakes created from public YouTube footage.</p>
+        <p style="margin-top: 0.5rem; color: #fff;"><strong>The Result:</strong> 15 wire transfers totaling <strong>HK$200,000,000 (~$25.6M USD)</strong> sent to fraudulent accounts before anyone noticed.</p>
+      </div>
+      <div class="card" style="border-left: 4px solid var(--danger);">
+        <h3 style="color: var(--danger);">$893M+ FBI Reported Losses (2025)</h3>
+        <p>Over <strong>22,000 AI fraud complaints</strong> logged. Invoice redirection fraud accounted for 85% of payment diversion losses, averaging £47,000 per incident.</p>
+        <p style="margin-top: 0.5rem; color: #fff;"><strong>The Human Failure:</strong> The victim did what security training taught him—he asked for a video call to verify. But the video call <em>was</em> the attack!</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1rem; background: rgba(239, 68, 68, 0.06); border-color: rgba(239, 68, 68, 0.2);">
+      <h3 style="color: #fff;">The Core Security Vulnerability:</h3>
+      <p style="font-size: 1.05rem; color: #cbd5e1;">Every existing approval system relies on human eyes and ears over a digital stream. TrueCall replaces sensory trust with <strong>cryptographic hardware signing</strong>.</p>
+    </div>
+
+    <div></div>
+  </div>
+
+  <!-- SLIDE 3: Why Existing Tools Fail -->
+  <div class="slide" data-slide="3" data-notes="WHY EXISTING TOOLS FAIL (1:00): Passkeys prove who logs into a website; they don't bind an approval to a specific wire transfer amount or IBAN. Bank confirmations trust the user making the request. Call-backs fail because voice is spoofed. TrueCall binds the person, the amount, the bank account, and the nonce on dedicated hardware.">
+    <div>
+      <div class="badge">Security Gap Analysis</div>
+      <h2>Why Existing Enterprise Protections Fail</h2>
+      <p class="subtitle">Deepfake attacks bypass standard IT and banking defenses.</p>
+    </div>
+
+    <div class="grid-2" style="margin-top: 1rem;">
+      <div class="card">
+        <h3>❌ Passkeys & FIDO2 Security Keys</h3>
+        <p><strong>What they do:</strong> Prove you are logging into the correct domain.</p>
+        <p style="color: var(--danger);"><strong>Why they fail:</strong> They authenticate a login session, not the specific $250,000 amount or beneficiary account number.</p>
+      </div>
+      <div class="card">
+        <h3>❌ Bank Confirmation SMS / 2FA</h3>
+        <p><strong>What they do:</strong> Confirms the payment with the corporate bank.</p>
+        <p style="color: var(--danger);"><strong>Why they fail:</strong> The bank sees a legitimate, authorized employee making the payment. The fraud happens inside the company beforehand.</p>
+      </div>
+      <div class="card">
+        <h3>❌ Voice Call-Back Procedures</h3>
+        <p><strong>What they do:</strong> Employee phones the CFO back to confirm.</p>
+        <p style="color: var(--danger);"><strong>Why they fail:</strong> Voice cloning models (ElevenLabs, etc.) reproduce executive voices in real-time over telephone lines.</p>
+      </div>
+      <div class="card" style="border-color: var(--success); background: rgba(16, 185, 129, 0.05);">
+        <h3 style="color: var(--success);">✅ TrueCall on Passport Prime</h3>
+        <p><strong>What it does:</strong> Checks the person, the exact amount, and the destination IBAN together on an uncompromisable physical screen.</p>
+        <p style="color: #fff;"><strong>Why it succeeds:</strong> Keys never leave Prime's secure element. What you see is what you sign.</p>
+      </div>
+    </div>
+
+    <div></div>
+  </div>
+
+  <!-- SLIDE 4: Architecture -->
+  <div class="slide" data-slide="4" data-notes="ARCHITECTURE (1:30): 2 QR exchanges, 1 trusted directory. Step 1: In-person enrolment binds the CFO's hardware key to company directory. Step 2: Finance builds a payment request with nonce and expiry. Step 3: CFO scans QR on Prime, inspects amount & bank account. Step 4: Prime returns BIP340 Schnorr signature. Verifier checks against directory.">
+    <div>
+      <div class="badge">System Architecture</div>
+      <h2>2 QR Exchanges • 1 Signed Directory</h2>
+      <p class="subtitle">Complete air-gapped cryptographic loop that works across untrusted screens.</p>
+    </div>
+
+    <div class="grid-3" style="margin-top: 1rem;">
+      <div class="card">
+        <div style="font-size: 2rem;">1️⃣</div>
+        <h3>Enrolment & Directory</h3>
+        <p>• CFO generates TrueCall key inside Prime hardware RNG.</p>
+        <p>• Registered in-person by security admin in signed company directory.</p>
+        <p>• Policy thresholds assigned ($1M limit, dual signers >$200k).</p>
+      </div>
+      <div class="card">
+        <div style="font-size: 2rem;">2️⃣</div>
+        <h3>Request & Vendor Check</h3>
+        <p>• Finance tool encodes payment into canonical bytes.</p>
+        <p>• Prime scans Request QR over video call screen share.</p>
+        <p>• Prime compares destination IBAN against saved vendor database.</p>
+        <p>• Swapped or new accounts flagged in <strong class="highlight-red">BRIGHT RED</strong>.</p>
+      </div>
+      <div class="card">
+        <div style="font-size: 2rem;">3️⃣</div>
+        <h3>Cryptographic Release</h3>
+        <p>• Approver signs on Prime with BIP340 Schnorr signature.</p>
+        <p>• Verifier recomputes tagged hash: amount, account, nonce.</p>
+        <p>• Bank payment wire released only when signature matches directory.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1rem; border-color: var(--primary);">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span><strong>Untrusted Channel Immunity:</strong> Both QR codes can travel over the exact video call the attacker controls without compromising security.</span>
+        <span class="badge success">Mathematically Secure</span>
+      </div>
+    </div>
+
+    <div></div>
+  </div>
+
+  <!-- SLIDE 5: The 4 Attacks Replayed & Stopped -->
+  <div class="slide" data-slide="5" data-notes="ATTACK LAB (2:00): Now we recreate the Arup attack live. Attack 1: Fake CFO orders wire. Fails because attacker key is not in directory. Attack 2: Invoice fraud swaps bank account. Prime flags red and CFO rejects. Attack 3: Amount altered after approval. Signature hash breaks. Attack 4: Replaying old approval fails nonce check.">
+    <div>
+      <div class="badge danger">Attack Lab Demonstration</div>
+      <h2>The Arup Attack: 4 Attack Vectors Crushed</h2>
+      <p class="subtitle">Every real-world scam tactic defeated by cryptographic constraints.</p>
+    </div>
+
+    <div class="grid-4" style="margin-top: 1rem;">
+      <div class="card" style="border-top: 4px solid var(--danger);">
+        <h3 style="color: #fca5a5;">Attack 1: Fake CFO on Call</h3>
+        <p>Attacker uses high-pressure deepfake voice & video, signing with laptop key.</p>
+        <div style="font-size: 0.8rem; color: var(--danger); font-family: monospace; margin-top: auto; background: rgba(239,68,68,0.1); padding: 0.4rem; border-radius: 6px;">
+          BLOCKED: Key not in signed company directory.
+        </div>
+      </div>
+      <div class="card" style="border-top: 4px solid var(--danger);">
+        <h3 style="color: #fca5a5;">Attack 2: Swapped Account</h3>
+        <p>Attacker sends fraudulent invoice with swapped beneficiary bank account.</p>
+        <div style="font-size: 0.8rem; color: var(--danger); font-family: monospace; margin-top: auto; background: rgba(239,68,68,0.1); padding: 0.4rem; border-radius: 6px;">
+          BLOCKED: Prime screen flags changed IBAN in red; CFO rejects.
+        </div>
+      </div>
+      <div class="card" style="border-top: 4px solid var(--danger);">
+        <h3 style="color: #fca5a5;">Attack 3: Amount Altered</h3>
+        <p>CFO signs $25,000 payment; malware submits $250,000 to bank API.</p>
+        <div style="font-size: 0.8rem; color: var(--danger); font-family: monospace; margin-top: auto; background: rgba(239,68,68,0.1); padding: 0.4rem; border-radius: 6px;">
+          BLOCKED: Request hash mismatch breaks Schnorr signature.
+        </div>
+      </div>
+      <div class="card" style="border-top: 4px solid var(--danger);">
+        <h3 style="color: #fca5a5;">Attack 4: Replay Approval</h3>
+        <p>Attacker intercepts and resubmits last week's legitimate signed approval.</p>
+        <div style="font-size: 0.8rem; color: var(--danger); font-family: monospace; margin-top: auto; background: rgba(239,68,68,0.1); padding: 0.4rem; border-radius: 6px;">
+          BLOCKED: One-time nonce already used; timestamp expired.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1rem; background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3);">
+      <p style="font-size: 1.05rem; color: #fff; text-align: center;">
+        <strong>Live Test Results:</strong> 4/4 automated Rust unit tests passing • CLI Simulator tested • Tamper-evident device-signed audit log verified.
+      </p>
+    </div>
+
+    <div></div>
+  </div>
+
+  <!-- SLIDE 6: Defense Strategy (Judges Q&A) -->
+  <div class="slide" data-slide="6" data-notes="JUDGES DEFENSE (3:00): Judges will ask: What if the attacker enrolls their own key? Answer: Enrolment is strictly in-person with signed directory by security admin. What about screen share latency? QR codes scan instantaneously even on low-res webcam. Why not mobile phone? Mobile phones run apps and malware; Prime is dedicated, air-gapped hardware.">
+    <div>
+      <div class="badge">Judges Q&A Defense</div>
+      <h2>Anticipating Hard Questions</h2>
+      <p class="subtitle">Clear answers rooted in enterprise threat models.</p>
+    </div>
+
+    <div class="grid-2" style="margin-top: 1rem;">
+      <div class="card">
+        <h3 style="color: var(--primary);">"What if an attacker enrolls their own key?"</h3>
+        <p>Enrolment is the root of trust. TrueCall enforces <strong>in-person face-to-face enrolment</strong> by a security officer. The approver directory itself is cryptographically signed by the corporate root admin key.</p>
+      </div>
+      <div class="card">
+        <h3 style="color: var(--primary);">"Can QR codes be scanned over a video call screen share?"</h3>
+        <p>Yes. TrueCall uses compact, high-contrast QR encoding. Passport Prime's camera reliably reads QRs from laptop screens and video calls across standard 720p streams.</p>
+      </div>
+      <div class="card">
+        <h3 style="color: var(--primary);">"Why not an iPhone or Android authenticator app?"</h3>
+        <p>Mobile phones are connected to AI apps, cellular networks, browsers, and zero-day spyware (Pegasus). Prime is dedicated <strong>Human Authority Hardware</strong> that doesn't browse the web or run untrusted code.</p>
+      </div>
+      <div class="card">
+        <h3 style="color: var(--primary);">"What happens if an executive is physically coerced?"</h3>
+        <p>Physical coercion is out of scope for digital fraud defenses. However, high-value payments ($200k+) mandate <strong>dual-signers</strong> across separate executive devices.</p>
+      </div>
+    </div>
+
+    <div></div>
+  </div>
+
+  <!-- SLIDE 7: Enterprise Roadmap -->
+  <div class="slide" data-slide="7" data-notes="ROADMAP (3:30): Beyond enterprise wire transfers: IT helpdesk password resets, crypto treasury multisig, and 'Prove It's You' challenge QRs for family and journalists. Foundation's Enterprise direction matches TrueCall perfectly.">
+    <div>
+      <div class="badge success">Roadmap & Applications</div>
+      <h2>Beyond Wire Transfers: Universal Human Proof</h2>
+      <p class="subtitle">Expanding TrueCall across critical enterprise and consumer identity workflows.</p>
+    </div>
+
+    <div class="grid-3" style="margin-top: 1rem;">
+      <div class="card primary-card">
+        <div class="badge success">Today (Hackathon MVP)</div>
+        <h3>Corporate Wire Protection</h3>
+        <p>• In-person signed directory</p>
+        <p>• Known vendor account verification</p>
+        <p>• BIP340 Schnorr 2-QR exchange</p>
+        <p>• 4-Attack lab & Rust core engine</p>
+      </div>
+      <div class="card">
+        <div class="badge">Next 60 Days</div>
+        <h3>IT Helpdesk & "Prove It's You"</h3>
+        <p>• Prevent social-engineered Okta/MFA resets</p>
+        <p>• Remote approvals via QuantumLink companion</p>
+        <p>• Meeting-app add-on (Teams/Zoom green check)</p>
+      </div>
+      <div class="card">
+        <div class="badge">Future Scale</div>
+        <h3>Crypto Treasury Multisig</h3>
+        <p>• TrueCall approval paired directly with Bitcoin/Taproot multisig</p>
+        <p>• Family elder fraud voice protection</p>
+        <p>• Open catalog app on KeyOS</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1rem; border-color: #3b82f6;">
+      <h3 style="color: #60a5fa;">Aligning with Foundation's Vision</h3>
+      <p style="color: #cbd5e1;">Foundation pitches Prime to enterprises as a <em>trusted screen for high-risk decisions</em>. TrueCall is the definitive enterprise app that makes that vision a reality.</p>
+    </div>
+
+    <div></div>
+  </div>
+
+  <!-- SLIDE 8: Summary & Closing -->
+  <div class="slide" data-slide="8" data-notes="CLOSING (4:00): In conclusion, deepfakes have destroyed trust in human audio and video. But mathematics and dedicated hardware restore that trust completely. The deepfake can be 100% convincing, but without the physical key on Passport Prime, the money never moves. The deepfake was perfect. It just didn't matter. Thank you.">
+    <div style="text-align: center; margin-top: 2rem;">
+      <div class="badge success" style="margin: 0 auto 1.5rem auto;">TechEve 2026 • Submission Ready</div>
+      <h1 style="font-size: 3.8rem;">TRUE<span class="highlight">CALL</span></h1>
+      <p class="subtitle" style="margin: 0 auto; text-align: center; max-width: 800px; font-size: 1.6rem; color: #fff;">
+        <em>"The deepfake was perfect. It just didn't matter."</em>
+      </p>
+
+      <div class="grid-3" style="max-width: 900px; margin: 3rem auto 0 auto; text-align: left;">
+        <div class="card">
+          <div style="color: var(--primary); font-weight: 700;">Tested & Verified</div>
+          <p>Rust core engine unit tests passing • BIP340 Schnorr cryptographic proof</p>
+        </div>
+        <div class="card">
+          <div style="color: var(--success); font-weight: 700;">Live Interactive Demo</div>
+          <p>Dual Simulator (Arup Portal + Passport Prime) ready for presentation</p>
+        </div>
+        <div class="card">
+          <div style="color: var(--warning); font-weight: 700;">Complete Deliverable</div>
+          <p>Arup scenario replayed, 4 attack vectors crushed, full documentation</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center; font-size: 1.1rem; color: #fff; font-weight: 600; margin-bottom: 2rem;">
+      Ready for Judges' Questions
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation Bar -->
+<div id="nav-bar">
+  <div style="display: flex; align-items: center; gap: 1rem;">
+    <button class="nav-btn" onclick="prevSlide()">← Prev</button>
+    <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    <span id="slide-indicator" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">Slide 1 / 8</span>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 1rem;">
+    <div class="timer-pill" id="timer-btn" onclick="toggleTimer()" title="Click to start 4-minute pitch timer">⏱️ 04:00 (Start)</div>
+    <button class="nav-btn" onclick="toggleNotes()">Speaker Notes (P)</button>
+    <button class="nav-btn" onclick="toggleFullScreen()">Full Screen (F)</button>
+  </div>
+</div>
+
+<div class="speaker-note" id="notes-overlay">
+  <h4>Speaker Notes & Pitch Script</h4>
+  <div id="notes-content">Notes will appear here...</div>
+</div>
+
+<script>
+  let currentSlide = 1;
+  const totalSlides = 8;
+  const slides = document.querySelectorAll('.slide');
+  const indicator = document.getElementById('slide-indicator');
+  const notesOverlay = document.getElementById('notes-overlay');
+  const notesContent = document.getElementById('notes-content');
+
+  function updateSlide(n) {
+    if (n < 1 || n > totalSlides) return;
+    slides.forEach((s, idx) => {
+      s.classList.remove('active', 'previous');
+      if (idx + 1 === n) {
+        s.classList.add('active');
+        notesContent.innerText = s.getAttribute('data-notes') || 'No notes for this slide.';
+      } else if (idx + 1 < n) {
+        s.classList.add('previous');
+      }
+    });
+    currentSlide = n;
+    indicator.innerText = `Slide ${currentSlide} / ${totalSlides}`;
+  }
+
+  function nextSlide() { if (currentSlide < totalSlides) updateSlide(currentSlide + 1); }
+  function prevSlide() { if (currentSlide > 1) updateSlide(currentSlide - 1); }
+
+  function toggleNotes() { notesOverlay.classList.toggle('show'); }
+
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') nextSlide();
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+    else if (e.key === 'p' || e.key === 'P') toggleNotes();
+    else if (e.key === 'f' || e.key === 'F') toggleFullScreen();
+    else if (e.key === 't' || e.key === 'T') toggleTimer();
+  });
+
+  let timerInterval = null;
+  let remainingSeconds = 240;
+
+  function toggleTimer() {
+    const btn = document.getElementById('timer-btn');
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      btn.innerText = `⏱️ ${formatTime(remainingSeconds)} (Paused)`;
+    } else {
+      if (remainingSeconds <= 0) remainingSeconds = 240;
+      timerInterval = setInterval(() => {
+        remainingSeconds--;
+        btn.innerText = `⏱️ ${formatTime(remainingSeconds)}`;
+        if (remainingSeconds <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          btn.innerText = `⏱️ TIME UP!`;
+        }
+      }, 1000);
+    }
+  }
+
+  function formatTime(sec) {
+    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const s = (sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  updateSlide(1);
+</script>
+
+</body>
+</html>
